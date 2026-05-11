@@ -1,7 +1,7 @@
 import pandas as pd
 import time
-from firewall import add_firewall_block 
-from notifications import send_push_message
+from firewall import add_firewall_block
+from throttle import limit_bandwidth
 from whois import whois
 from datetime import datetime
 from config import *
@@ -29,7 +29,10 @@ def analyse_window_instagram(rows):
     for key in seen:
         if (seen[key] >= DOOMSCROLLING_CHECK_MIN_DATA_POINTS):
             src_ip, src_port, dst_ip, dst_port = key
-            add_firewall_block(src_ip, src_port, dst_ip, dst_port, DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE)
+            if DOOMSCROLLING_BLOCK_ON_DETECT:
+                add_firewall_block(src_ip, src_port, dst_ip, dst_port, DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE)
+            if DOOMSCROLLING_THROTTLE_ON_DETECT:
+                limit_bandwidth(src_ip)
             return True
 
     return False
@@ -62,10 +65,10 @@ def detect_doomscrolling():
             rows = cursor.fetchall()
 
             if len(rows) == 0:
-                logger.warn(f"No rows found for user {user_ip}")
+                # logger.warn(f"No rows found for user {user_ip}")
                 continue
             
-            logger.info(f"Found {len(rows)} rows for user {user_ip}")
+            # logger.info(f"Found {len(rows)} rows for user {user_ip}")
 
             if analyse_window_instagram(rows):
                 logger.info(f"Doomscrolling detected for user {user_ip}")
@@ -100,7 +103,7 @@ def detect_doomscrolling():
 
 
         for user_ip, user_rows in ip_dataframes.items():
-            logger.info(f"Found {len(user_rows)} rows for user {user_ip}")
+            # logger.info(f"Found {len(user_rows)} rows for user {user_ip}")
             if analyse_window_instagram(user_rows):
                 logger.info(f"Doomscrolling detected for user {user_ip}")
                 doomscroll_history[user_ip] = datetime.now().timestamp()

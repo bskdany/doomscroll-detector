@@ -15,13 +15,18 @@ PYTHON="${PYTHON:-$(which python3)}"
 tmux kill-session -t "$SESSION" 2>/dev/null
 tmux new-session -d -s "$SESSION" -x "$(tput cols)" -y "$(tput lines)"
 tmux split-window -h -t "$SESSION"
+tmux split-window -v -t "$SESSION:0.1"
 
-# Left pane (0): bandwidth monitor
+# Left pane (0.0): bandwidth monitor
 tmux send-keys -t "$SESSION:0.0" \
   "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/monitor_bandwidth.py" Enter
 
-# Right pane (1): everything else
+# Top-right pane (0.1): deploy
 tmux send-keys -t "$SESSION:0.1" \
   "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/deploy.py" Enter
+
+# Bottom-right pane (0.2): throttle monitor
+tmux send-keys -t "$SESSION:0.2" \
+  "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/monitor_throttle.py" Enter
 
 tmux attach-session -t "$SESSION"
