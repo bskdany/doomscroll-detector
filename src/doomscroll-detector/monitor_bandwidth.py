@@ -45,12 +45,9 @@ def calculate_bandwidth_stats(df):
     return bandwidth_stats
 
 def monitor_bandwidth(update_interval=MONITOR_BANDWIDTH_UPDATE_INTERVAL):
-    last_stats = {}
-
-    start_time = time.time()
-    
     while True:
         try:
+            start_time = time.time() - 60
             df = get_traffic_data(start_time)
             current_stats = calculate_bandwidth_stats(df)
             
@@ -63,7 +60,6 @@ def monitor_bandwidth(update_interval=MONITOR_BANDWIDTH_UPDATE_INTERVAL):
                 size_str = format_size(stats['kb'])
                 print(f"{src_ip:<21} {src_port:>5} {dst_ip:<21} {dst_port:>5} {size_str:>8}")
             
-            last_stats = current_stats
             time.sleep(update_interval)
             
         except KeyboardInterrupt:
