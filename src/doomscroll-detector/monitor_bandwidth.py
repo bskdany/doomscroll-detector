@@ -73,4 +73,6 @@ def monitor_bandwidth(update_interval=MONITOR_BANDWIDTH_UPDATE_INTERVAL):
             time.sleep(update_interval)
 
 if __name__ == "__main__":
+    from sqlite import init_db
+    init_db()
     monitor_bandwidth()

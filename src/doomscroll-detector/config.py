@@ -1,6 +1,6 @@
 # Network configs
 PACKET_SIZE_THRESHOLD = 10  # requests with less than this amount of packets are not saved
-INTERFACE_NAME = "wg0"  # network interface to monitor
+INTERFACE_NAME = "tailscale0"  # network interface to monitor
 UDP_TIMEOUT = 0.1  # timeout for UDP packet aggregation
 
 # File paths
@@ -22,7 +22,6 @@ WIREGUARD_CLIENT_SUBNET = "10.66.66."
 # Interceptor configs
 INTERCEPTOR_LOG_UDP = False 
 INTERCEPTOR_LOG_DNS = False
-MONITOR_BANDWIDTH = False 
 
 MONITOR_BANDWIDTH_UPDATE_INTERVAL = 1  # how often to update the bandwidth display, in seconds
 MONITOR_BANDWIDTH_SESSION_TIMEOUT = 10  # minutes of inactivity before considering a new session 
