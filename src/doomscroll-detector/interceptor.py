@@ -40,8 +40,7 @@ class PacketDictionary:
                 self.save_udp_packet(response_data, key)
 
                 if(INTERCEPTOR_LOG_UDP):
-                    # check whether the source is in the wireguard client subnet
-                    if(key[0].startswith(WIREGUARD_CLIENT_SUBNET)):
+                    if(key[0].startswith(CLIENT_SUBNET)):
                         logger.info(f"UDP stream | {key[0]}:{key[1]} -> {key[2]}:{key[3]} | {packet_size_to_kb(response_data[2])}kb")
                     else:
                         logger.info(f"UDP stream | {key[2]}:{key[3]} <- {key[0]}:{key[1]} | {packet_size_to_kb(response_data[2])}kb")

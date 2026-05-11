@@ -85,10 +85,9 @@ def detect_doomscrolling():
             FROM udp
             WHERE start_time >= ? 
             AND destination_ip LIKE ?
-            AND destination_ip NOT IN ({})  
-        '''.format(','.join(['?'] * len(used_ips))), 
-        [start_time, WIREGUARD_CLIENT_SUBNET + '%'] + 
-        used_ips)
+            AND destination_ip NOT IN ({})
+        '''.format(','.join(['?'] * len(used_ips)) if used_ips else '""'),
+        [start_time, CLIENT_SUBNET + '%'] + used_ips)
         rows = cursor.fetchall()
         sqlite_conn.close()
 

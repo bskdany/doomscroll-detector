@@ -3,9 +3,7 @@
 StopBeingCooked is a system that blocks Instagram Reels and other Short Form Video content, it works on any device with theoretically any app.
 
 ## The Setup
-Create a VPN Server on a Linux device using [wireguard-install](https://github.com/angristan/wireguard-install).
-
-Install the wiregurad-vpn app on your client device and connect to the server.
+Install [Tailscale](https://tailscale.com) on both the Linux server and your client device, then connect them to the same Tailscale network.
 
 ## Running the app 
 An admin password will be requested
@@ -15,14 +13,14 @@ An admin password will be requested
 
 This assumes that:
 1. You're on a Linux system that has iptables control
-2. Your default interface is called `br0` as set in `interceptor.py`
-3. There is only 1 concurrent device connected to the VPN server
+2. Tailscale is installed and the interface is called `tailscale0` as set in `config.py`
+3. There is only 1 concurrent device connected to the Tailscale network
 
 ## How does it work 
 
 ![image](./assets/how_it_works.png)
 
-StopBeingCooked works by cross-analyzing UDP packets with DNS WHOIS lookups. To be able to do so a VPN connection must be established between the device and a Linux server, giving the latter access to the raw network packets.
+StopBeingCooked works by cross-analyzing UDP packets with DNS WHOIS lookups. To be able to do so a Tailscale connection must be established between the device and a Linux server, giving the latter access to the raw network packets.
 
 A local approach on iOS with the NetworkExtension was attempted, but discarded due to the complexity and no guarantee that such app would be approved on the App Store.
 
