@@ -1,1 +1,1 @@
-sudo $(which python3) deploy.py
+sudo $(which python3) src/doomscroll-detector/deploy.py
