@@ -5,7 +5,7 @@ if [ "$EUID" -ne 0 ]; then
         pipenv install
     fi
     VENV="$(pipenv --venv)"
-    exec sudo env VENV="$VENV" PYTHON="$VENV/bin/python3" "$0" "$@"
+    exec sudo env VENV="$VENV" PYTHON="$VENV/bin/python3" HOME="$HOME" "$0" "$@"
 fi
 
 SESSION="doomscroll"
