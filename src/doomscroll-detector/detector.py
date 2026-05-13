@@ -7,6 +7,7 @@ from datetime import datetime
 from config import *
 from logger import logger
 import sqlite3
+from sqlite import DB_PATH
 
 def packet_size_to_mb(packet_size):
     return round(packet_size / (1024 * 1024), 1)
@@ -42,7 +43,7 @@ def detect_doomscrolling():
     doomscroll_history = dict()
 
     while True:
-        sqlite_conn = sqlite3.connect('traffic.db', timeout=10)
+        sqlite_conn = sqlite3.connect(DB_PATH, timeout=10)
         cursor = sqlite_conn.cursor()
 
         end_time = datetime.now().timestamp()

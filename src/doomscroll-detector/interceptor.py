@@ -8,6 +8,7 @@ import os
 from whois import tag_ip
 from config import *
 from logger import logger
+from sqlite import DB_PATH
 
 def packet_size_to_kb(packet_size):
     return round(packet_size / 1024, 1)
@@ -52,7 +53,7 @@ class PacketDictionary:
                 timer.cancel()
 
     def save_udp_packet(self, response_data, key):
-        conn = sqlite3.connect('traffic.db', timeout=10)
+        conn = sqlite3.connect(DB_PATH, timeout=10)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO udp (start_time, end_time, source_ip, source_port, destination_ip, destination_port, total_size, total_packets)
