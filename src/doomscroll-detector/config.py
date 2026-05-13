@@ -2,10 +2,10 @@
 PACKET_SIZE_THRESHOLD = 10  # requests with less than this amount of packets are not saved
 INTERFACE_NAME = "tailscale0"  # network interface to monitor
 THROTTLE_INTERFACE = "enp2s0"  # internet-facing interface for ingress policing
-THROTTLE_RATE_KBIT = 1000      # initial police rate in kbit/s per throttled source IP
+THROTTLE_RATE_KBIT = 150       # initial police rate in kbit/s per throttled source IP
 THROTTLE_BURST_KB = 64         # burst size in KB for the police action
 THROTTLE_TARGET_DROP_PCT = 40  # target packet drop % for the dynamic adjuster
-THROTTLE_MIN_RATE_KBIT = 100   # floor rate the adjuster will not go below
+THROTTLE_MIN_RATE_KBIT = 150   # floor rate the adjuster will not go below
 THROTTLE_MAX_RATE_KBIT = 5000  # ceiling rate the adjuster will not go above
 THROTTLE_ADJUST_INTERVAL = 1   # how often the adjuster runs, in seconds
 UDP_TIMEOUT = 0.1              # fallback timeout when fewer than 2 packets have arrived
@@ -24,6 +24,7 @@ IGNORE_LOCAL_IPS = True  # whether to ignore packets from local IPs (192.168.*)
 QUIC_DETECT_ENABLE = True
 QUIC_DETECT_POLL_INTERVAL = 1   # seconds between polls
 QUIC_DETECT_LOOKBACK = 5        # seconds of history to scan per tick
+QUIC_FLOW_REEL_BOUND = 100_000  # bytes; flows above this are likely reel/video content
 
 # Doomscrolling detection
 DOOMSCROLLIG_CHECK_ENABLE = False
