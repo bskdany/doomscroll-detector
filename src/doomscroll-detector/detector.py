@@ -42,7 +42,7 @@ def detect_doomscrolling():
     doomscroll_history = dict()
 
     while True:
-        sqlite_conn = sqlite3.connect('traffic.db')
+        sqlite_conn = sqlite3.connect('traffic.db', timeout=10)
         cursor = sqlite_conn.cursor()
 
         end_time = datetime.now().timestamp()

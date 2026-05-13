@@ -35,7 +35,9 @@ class PacketDictionary:
         
     def remove(self, key):
         with self.lock:
-            response_data = self.data.pop(key)
+            response_data = self.data.pop(key, None)
+            if response_data is None:
+                return
             if(response_data[3] >= PACKET_SIZE_THRESHOLD):
                 self.save_udp_packet(response_data, key)
 
@@ -50,7 +52,7 @@ class PacketDictionary:
                 timer.cancel()
 
     def save_udp_packet(self, response_data, key):
-        conn = sqlite3.connect('traffic.db')
+        conn = sqlite3.connect('traffic.db', timeout=10)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO udp (start_time, end_time, source_ip, source_port, destination_ip, destination_port, total_size, total_packets)
