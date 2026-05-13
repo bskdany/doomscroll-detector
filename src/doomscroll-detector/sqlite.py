@@ -2,8 +2,10 @@ import sqlite3
 import csv
 from pathlib import Path
 
+DB_PATH = str(Path(__file__).parent / 'traffic.db')
+
 def init_db():
-    conn = sqlite3.connect('traffic.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -16,9 +18,16 @@ def init_db():
         destination_ip TEXT,
         destination_port INTEGER,
         total_size INTEGER,
-        total_packets INTEGER
+        total_packets INTEGER,
+        median_iat REAL
     )
     ''')
+
+    # migrate existing databases that predate the median_iat column
+    try:
+        cursor.execute('ALTER TABLE udp ADD COLUMN median_iat REAL')
+    except Exception:
+        pass  # column already exists
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS tcp (
