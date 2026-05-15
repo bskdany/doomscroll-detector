@@ -178,3 +178,4 @@ traffic_logs
 *.db
 *.pcap
 *.csv
+*.joblib
