@@ -11,6 +11,6 @@ matplotlib = "*"
 mplcursors = "*"
 websockets = "*"
 exponent-server-sdk = "*"
+scikit-learn = "*"
 
 [dev-packages]
-

@@ -17,16 +17,16 @@ tmux new-session -d -s "$SESSION" -x "$(tput cols)" -y "$(tput lines)"
 tmux split-window -h -t "$SESSION"
 tmux split-window -v -t "$SESSION:0.1"
 
-# Left pane (0.0): bandwidth monitor
+# Left pane (0.0): interceptor
 tmux send-keys -t "$SESSION:0.0" \
-  "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/monitor_bandwidth.py" Enter
+  "cd $REPO/src/doomscroll-detector/network && source $VENV/bin/activate && $PYTHON deploy.py" Enter
 
-# Top-right pane (0.1): deploy
+# Top-right pane (0.1): inference monitor
 tmux send-keys -t "$SESSION:0.1" \
-  "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/deploy.py" Enter
+  "cd $REPO/src/doomscroll-detector/inference && source $VENV/bin/activate && $PYTHON monitor.py" Enter
 
-# Bottom-right pane (0.2): throttle monitor
+# Bottom-right pane (0.2): detector + throttle enforcement
 tmux send-keys -t "$SESSION:0.2" \
-  "cd $REPO && source $VENV/bin/activate && $PYTHON src/doomscroll-detector/monitor_throttle.py" Enter
+  "cd $REPO/src/doomscroll-detector/inference && source $VENV/bin/activate && $PYTHON detector.py" Enter
 
 tmux attach-session -t "$SESSION"

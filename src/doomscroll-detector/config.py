@@ -12,39 +12,27 @@ UDP_TIMEOUT = 0.1              # fallback timeout when fewer than 2 packets have
 FLOW_TIMEOUT_MULTIPLIER = 10   # adaptive timeout = median_IAT * this
 FLOW_MIN_TIMEOUT = 0.05        # floor for the adaptive timeout, in seconds
 
-# File paths
-UDP_LOG_FILE = "./traffic_logs/udp.csv"
-TCP_LOG_FILE = "./traffic_logs/tcp.csv"
-DNS_LOG_FILE = "./traffic_logs/dns.csv"
-
-# IP filtering
-IGNORE_LOCAL_IPS = True  # whether to ignore packets from local IPs (192.168.*)
-
-# QUIC detection
-QUIC_DETECT_ENABLE = True
-QUIC_DETECT_POLL_INTERVAL = 1   # seconds between polls
-QUIC_DETECT_LOOKBACK = 5        # seconds of history to scan per tick
-QUIC_FLOW_REEL_BOUND = 100_000  # bytes; flows above this are likely reel/video content
-
-# Doomscrolling detection
-DOOMSCROLLIG_CHECK_ENABLE = False
-DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE = 60  # how many minutes to look back to detect doomscrolling, in seconds
-DOOMSCROLLING_CHECK_MIN_DATA_POINTS = 5  # minimum number of bursts required before duty-cycle check kicks in
-DOOMSCROLLING_CHECK_UPDATE_INTERVAL = 1  # how often to check for doomscrolling, in seconds
-DOOMSCROLLING_BLOCK_ON_DETECT = False    # whether to hard-DROP traffic (iptables) when doomscrolling is detected
-DOOMSCROLLING_THROTTLE_ON_DETECT = True  # whether to throttle via tc ingress police when doomscrolling is detected
-# Duty-cycle thresholds: fraction of the rolling window that is "active" with bursts.
-# Too low  → user is barely active (not doomscrolling, just idle).
-# Too high → sustained video stream, not a scroll feed.
-# Sweet spot for doomscrolling is typically 0.05 – 0.50.
-DOOMSCROLLING_DUTY_CYCLE_MIN = 0.05  # below this → not enough activity
-DOOMSCROLLING_DUTY_CYCLE_MAX = 0.50  # above this → likely video stream, not scrolling
-
 CLIENT_SUBNET = "100."  # Tailscale CGNAT range
 
 # Interceptor configs
-INTERCEPTOR_LOG_UDP = False 
+INTERCEPTOR_LOG_UDP = False
 INTERCEPTOR_LOG_DNS = False
 
 MONITOR_BANDWIDTH_UPDATE_INTERVAL = 1  # how often to update the bandwidth display, in seconds
-MONITOR_BANDWIDTH_SESSION_TIMEOUT = 10  # minutes of inactivity before considering a new session
+
+# Preprocessing
+PREPROCESSING_FILTER_DST_IP = "100.91.91.72"  # only flows with this as destination are kept
+
+# Inference
+from pathlib import Path
+INFERENCE_MODEL_PATH = str(Path(__file__).parent / "training" / "model.joblib")
+
+# Doomscrolling detection
+DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE = 60  # seconds of history to consider per detection tick
+DOOMSCROLLING_CHECK_UPDATE_INTERVAL = 1       # how often to run the detection loop, in seconds
+
+# Persistence: how long and how consistently the model must predict doomscrolling
+# before any action is taken. Keeps individual noisy predictions from triggering throttles.
+DOOMSCROLLING_PERSISTENCE_WINDOW = 30           # seconds of prediction history to consider
+DOOMSCROLLING_PERSISTENCE_THRESHOLD = 0.60      # fraction of predictions that must be doomscrolling
+DOOMSCROLLING_PERSISTENCE_MIN_PREDICTIONS = 3   # don't act until we have at least this many predictions
