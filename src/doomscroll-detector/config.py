@@ -51,3 +51,7 @@ MONITOR_BANDWIDTH_SESSION_TIMEOUT = 10  # minutes of inactivity before consideri
 
 # Preprocessing
 PREPROCESSING_FILTER_DST_IP = "100.91.91.72"  # only flows with this as destination are kept
+
+# Inference
+from pathlib import Path
+INFERENCE_MODEL_PATH = str(Path(__file__).parent / "training" / "model.joblib")

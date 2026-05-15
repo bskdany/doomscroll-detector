@@ -1,7 +1,9 @@
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from config import *
 import threading
 from interceptor import intercept_traffic
-from quic_detector import detect_quic
 from sqlite import init_db
 from logger import logger
 from firewall import clear_firewall_blacklist
@@ -13,10 +15,6 @@ def main():
     # start_dynamic_adjuster()
 
     traffic_interceptor_thread = threading.Thread(target=intercept_traffic, daemon=True, name="TrafficInterceptor")
-
-    if QUIC_DETECT_ENABLE:
-        quic_detector_thread = threading.Thread(target=detect_quic, daemon=True, name="QuicDetector")
-        quic_detector_thread.start()
 
     traffic_interceptor_thread.start()
 
