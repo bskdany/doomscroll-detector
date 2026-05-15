@@ -48,3 +48,6 @@ INTERCEPTOR_LOG_DNS = False
 
 MONITOR_BANDWIDTH_UPDATE_INTERVAL = 1  # how often to update the bandwidth display, in seconds
 MONITOR_BANDWIDTH_SESSION_TIMEOUT = 10  # minutes of inactivity before considering a new session
+
+# Preprocessing
+PREPROCESSING_FILTER_DST_IP = "100.91.91.72"  # only flows with this as destination are kept
