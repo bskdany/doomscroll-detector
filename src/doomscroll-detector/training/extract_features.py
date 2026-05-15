@@ -13,8 +13,9 @@ flows = [{"start_time": float(r["start_time"]), "end_time": float(r["end_time"])
           "total_size": int(r["total_size"]), "total_packets": int(r["total_packets"]),
           "label": r["label"]} for r in raw]
 
-fieldnames = ["total_size", "total_packets", "time_since_last_flow", "flows_last_10s",
-              "mean_packet_size_last_10s", "median_packet_size_last_10s", "label"]
+# Derive column names from the feature dict so this file never goes stale when features.py changes
+sample_feat = compute_features(flows[1], flows)
+fieldnames = list(sample_feat.keys()) + ["label"]
 
 with open("feature_matrix.csv", "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=fieldnames)

@@ -55,3 +55,9 @@ PREPROCESSING_FILTER_DST_IP = "100.91.91.72"  # only flows with this as destinat
 # Inference
 from pathlib import Path
 INFERENCE_MODEL_PATH = str(Path(__file__).parent / "training" / "model.joblib")
+
+# Persistence: how long and how consistently the model must predict doomscrolling
+# before any action is taken. Keeps individual noisy predictions from triggering throttles.
+DOOMSCROLLING_PERSISTENCE_WINDOW = 30    # seconds of prediction history to consider
+DOOMSCROLLING_PERSISTENCE_THRESHOLD = 0.60  # fraction of predictions that must be doomscrolling
+DOOMSCROLLING_PERSISTENCE_MIN_PREDICTIONS = 3  # don't act until we have at least this many predictions

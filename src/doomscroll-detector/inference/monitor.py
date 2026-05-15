@@ -52,10 +52,10 @@ def format_bytes(n):
 
 
 while True:
-    flows = get_flows(time.time() - max(DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE, 10))
+    flows = get_flows(time.time() - max(DOOMSCROLLING_PERSISTENCE_WINDOW, 10))
 
     os.system('clear')
-    print(f"Flows — last {DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE}s\n")
+    print(f"Flows — last {DOOMSCROLLING_PERSISTENCE_WINDOW}s\n")
 
     if len(flows) < 2:
         print("  Waiting for traffic...")
@@ -72,15 +72,16 @@ while True:
 
         rows.sort(key=lambda r: r[3], reverse=True)
 
-        header = f"  {'Source IP':<18}  {'Size':>8}  {'Pkts':>5}  {'T.Since':>8}  {'#10s':>5}  {'MeanPkt':>8}  {'MedPkt':>8}  {'BW/10s':>9}  {'State'}"
+        header = f"  {'Source IP':<18}  {'Size':>8}  {'Duration':>9}  {'T.Since':>8}  {'#5s':>4}  {'Total/5s':>9}  {'Med/5s':>8}  {'Max/5s':>8}  {'State'}"
         print(header)
         print("  " + "-" * (len(header) - 2))
         for flow, feat, state, bw_10s in rows:
             print(
-                f"  {flow['source_ip']:<18}  {format_bytes(feat['total_size']):>8}  {int(feat['total_packets']):>5}"
-                f"  {feat['time_since_last_flow']:>8.2f}  {int(feat['flows_last_10s']):>5}"
-                f"  {format_bytes(int(feat['mean_packet_size_last_10s'])):>8}  {format_bytes(int(feat['median_packet_size_last_10s'])):>8}"
-                f"  {format_bytes(bw_10s):>9}  {state}"
+                f"  {flow['source_ip']:<18}  {format_bytes(feat['total_size']):>8}"
+                f"  {feat['flow_duration']:>8.2f}s  {feat['time_since_last_flow']:>8.2f}"
+                f"  {int(feat['flows_last_5s']):>4}  {format_bytes(int(feat['total_bytes_last_5s'])):>9}"
+                f"  {format_bytes(int(feat['median_size_last_5s'])):>8}  {format_bytes(int(feat['max_size_last_5s'])):>8}"
+                f"  {state}"
             )
 
     print(f"\n  Updated {time.strftime('%H:%M:%S')}")

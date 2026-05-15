@@ -2,6 +2,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import sqlite3, time
+from collections import deque
 
 import joblib
 import pandas as pd
@@ -9,6 +10,7 @@ from config import *
 from logger import logger
 from sqlite import DB_PATH
 from features import compute_features
+from network.throttle import limit_bandwidth
 
 _artifact = joblib.load(INFERENCE_MODEL_PATH)
 model = _artifact["model"]
@@ -37,13 +39,28 @@ def get_flows(cursor, since):
              "total_size": r[3], "total_packets": r[4]} for r in cursor.fetchall()]
 
 
+def is_sustained_doomscrolling(history: deque, now: float) -> bool:
+    """Returns True if doomscrolling predictions have been sustained long enough."""
+    cutoff = now - DOOMSCROLLING_PERSISTENCE_WINDOW
+    while history and history[0][0] < cutoff:
+        history.popleft()
+
+    if len(history) < DOOMSCROLLING_PERSISTENCE_MIN_PREDICTIONS:
+        return False
+
+    doom_fraction = sum(1 for _, doom in history if doom) / len(history)
+    return doom_fraction >= DOOMSCROLLING_PERSISTENCE_THRESHOLD
+
+
 def detect_doomscrolling():
     last_seen = time.time()
+    prediction_history: deque[tuple[float, bool]] = deque()
+    throttled_ips: set[str] = set()
 
     while True:
         conn = sqlite3.connect(DB_PATH, timeout=10)
         cursor = conn.cursor()
-        history_since = time.time() - max(DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE, 10)
+        history_since = time.time() - max(DOOMSCROLLING_PERSISTENCE_WINDOW, DOOMSCROLLING_CHECK_ROLLING_WINDOW_SIZE)
         all_flows = get_flows(cursor, history_since)
         conn.close()
 
@@ -51,10 +68,23 @@ def detect_doomscrolling():
 
         for flow in new_flows:
             prediction = model.predict(pd.DataFrame([compute_features(flow, all_flows)]))[0]
+            is_doom = prediction == "doomscrolling"
+            prediction_history.append((flow["start_time"], is_doom))
             logger.info(f"[{flow['source_ip']}] {prediction}")
 
         if new_flows:
             last_seen = new_flows[-1]["start_time"]
+
+        now = time.time()
+        if is_sustained_doomscrolling(prediction_history, now):
+            active_ips = {f["source_ip"] for f in all_flows}
+            new_ips = active_ips - throttled_ips
+            for ip in new_ips:
+                logger.info(f"Sustained doomscrolling — throttling {ip}")
+                limit_bandwidth(ip)
+            throttled_ips.update(new_ips)
+        else:
+            throttled_ips.clear()
 
         time.sleep(DOOMSCROLLING_CHECK_UPDATE_INTERVAL)
 
