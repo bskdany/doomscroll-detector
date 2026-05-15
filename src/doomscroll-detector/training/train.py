@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
 df = pd.read_csv(sys.argv[1])
 df = df[df["label"] != "unknown"]
 
-DOOMSCROLLING_LABELS = {"scrolling_home", "scrolling_reels"}
+DOOMSCROLLING_LABELS = {"scrolling_home", "scrolling_reels", "comments"}
 
 X = df.drop(columns=["label"])
 y = df["label"].apply(lambda l: "doomscrolling" if l in DOOMSCROLLING_LABELS else "not_doomscrolling")
