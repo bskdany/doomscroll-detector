@@ -17,8 +17,8 @@ model = _artifact["model"]
 _expected_features = _artifact["features"]
 
 _actual_features = list(compute_features(
-    {"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1},
-    [{"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1}],
+    {"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1, "median_iat": 0.0},
+    [{"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1, "median_iat": 0.0}],
 ).keys())
 if _actual_features != _expected_features:
     raise RuntimeError(
@@ -30,13 +30,13 @@ if _actual_features != _expected_features:
 
 def get_flows(cursor, since):
     cursor.execute('''
-        SELECT start_time, end_time, source_ip, total_size, total_packets
+        SELECT start_time, end_time, source_ip, total_size, total_packets, median_iat
         FROM udp
         WHERE destination_ip LIKE ? AND source_port = 443 AND start_time >= ?
         ORDER BY start_time ASC
     ''', (CLIENT_SUBNET + '%', since))
     return [{"start_time": r[0], "end_time": r[1], "source_ip": r[2],
-             "total_size": r[3], "total_packets": r[4]} for r in cursor.fetchall()]
+             "total_size": r[3], "total_packets": r[4], "median_iat": r[5]} for r in cursor.fetchall()]
 
 
 def is_sustained_doomscrolling(history: deque, now: float) -> bool:

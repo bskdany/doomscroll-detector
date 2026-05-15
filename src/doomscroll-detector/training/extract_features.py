@@ -11,6 +11,7 @@ raw = sorted(csv.DictReader(open(sys.argv[1])), key=lambda r: float(r["start_tim
 
 flows = [{"start_time": float(r["start_time"]), "end_time": float(r["end_time"]),
           "total_size": int(r["total_size"]), "total_packets": int(r["total_packets"]),
+          "median_iat": float(r["median_iat"]) if r.get("median_iat") else None,
           "label": r["label"]} for r in raw]
 
 # Derive column names from the feature dict so this file never goes stale when features.py changes
