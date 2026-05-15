@@ -101,6 +101,31 @@ async function logStateChange(state: InstagramState) {
   db.close()
 }
 
+async function getAllRecords(): Promise<{ ts: number; state: InstagramState }[]> {
+  const db = await openDB()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readonly")
+    const req = tx.objectStore(STORE_NAME).getAll()
+    req.onsuccess = () => {
+      db.close()
+      resolve(req.result)
+    }
+    req.onerror = () => {
+      db.close()
+      reject(req.error)
+    }
+  })
+}
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === "GET_DB_DATA") {
+    getAllRecords()
+      .then((data) => sendResponse({ data }))
+      .catch(() => sendResponse({ data: [] }))
+    return true
+  }
+})
+
 export default function InstagramStateOverlay() {
   const [state, setState] = useState<InstagramState>("unknown")
   const currentState = useRef<InstagramState>("unknown")
