@@ -1,14 +1,15 @@
 import csv, os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-import interceptor
-from interceptor import PacketDictionary, packet_callback
+import network.interceptor as interceptor
+from network.interceptor import packet_callback
+from network.network_flow import NetworkFlow
 from config import PREPROCESSING_FILTER_DST_IP
 from scapy.all import sniff
 
 packet_flows = []
 
-class CsvPacketDictionary(PacketDictionary):
+class CsvNetworkFlow(NetworkFlow):
     def save_udp_packet(self, response_data, key):
         if key[2] != PREPROCESSING_FILTER_DST_IP:
             return
@@ -22,7 +23,7 @@ if len(sys.argv) < 2:
     print("Usage: python pcap-preprocessing.py <pcap_path>")
     sys.exit(1)
 
-interceptor.seen_udp_packets = CsvPacketDictionary()
+interceptor.seen_udp_packets = CsvNetworkFlow()
 
 sniff(offline=sys.argv[1], prn=packet_callback, store=False)
 
