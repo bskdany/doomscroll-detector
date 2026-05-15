@@ -10,7 +10,7 @@ from config import *
 from logger import logger
 from sqlite import DB_PATH
 from features import compute_features
-from network.throttle import limit_bandwidth
+from network.throttle import limit_bandwidth, lift_bandwidth_limit
 
 _artifact = joblib.load(INFERENCE_MODEL_PATH)
 model = _artifact["model"]
@@ -84,6 +84,8 @@ def detect_doomscrolling():
                 limit_bandwidth(ip)
             throttled_ips.update(new_ips)
         else:
+            for ip in throttled_ips:
+                lift_bandwidth_limit(ip)
             throttled_ips.clear()
 
         time.sleep(DOOMSCROLLING_CHECK_UPDATE_INTERVAL)
