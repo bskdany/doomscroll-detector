@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -24,5 +25,14 @@ model.fit(X_train, y_train)
 
 print(classification_report(y_test, model.predict(X_test)))
 
-joblib.dump(model, "model.joblib")
-print("Model saved to model.joblib")
+# Bundle the feature list with the model so inference can validate it matches
+# features.py at load time, catching mismatches before they silently corrupt predictions.
+artifact = {
+    "model": model,
+    "features": list(X.columns),
+}
+
+out_path = Path(__file__).parent / "model.joblib"
+joblib.dump(artifact, out_path)
+print(f"Model saved to {out_path}")
+print(f"Features: {list(X.columns)}")

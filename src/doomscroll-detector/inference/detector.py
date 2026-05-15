@@ -10,7 +10,20 @@ from logger import logger
 from sqlite import DB_PATH
 from features import compute_features
 
-model = joblib.load(INFERENCE_MODEL_PATH)
+_artifact = joblib.load(INFERENCE_MODEL_PATH)
+model = _artifact["model"]
+_expected_features = _artifact["features"]
+
+_actual_features = list(compute_features(
+    {"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1},
+    [{"start_time": 0.0, "end_time": 0.0, "total_size": 1, "total_packets": 1}],
+).keys())
+if _actual_features != _expected_features:
+    raise RuntimeError(
+        f"Feature mismatch — retrain the model.\n"
+        f"  Model expects: {_expected_features}\n"
+        f"  features.py produces: {_actual_features}"
+    )
 
 
 def get_flows(cursor, since):
